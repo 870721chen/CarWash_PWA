@@ -98,7 +98,7 @@ function App() {
           </div>
           <div className="topbar-actions">
             {showSearch ? (
-              <div className="top-search"><Search size={17} /><input autoFocus value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜尋車牌、客戶…" /><button className="icon-button" onClick={() => { setShowSearch(false); setSearch(''); }} aria-label="關閉搜尋"><X size={16} /></button></div>
+              <div className="top-search"><Search size={17} /><input autoFocus value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && search.trim()) { setRecordSearch(search.trim()); setPage('records'); setShowSearch(false); } }} placeholder="搜尋車牌、客戶…（Enter 查看紀錄）" /><button className="icon-button" onClick={() => { setShowSearch(false); setSearch(''); }} aria-label="關閉搜尋"><X size={16} /></button></div>
             ) : <button className="icon-button top-search-trigger" aria-label="搜尋" onClick={() => setShowSearch(true)}><Search size={19} /></button>}
             <button className="icon-button notification-button" aria-label="通知" onClick={() => notify('目前有 3 筆定期維護待處理')}><Bell size={19} /><span /></button>
             <div className="top-avatar">管</div>
