@@ -132,11 +132,14 @@ function PageHeading({ eyebrow, title, description, action }: { eyebrow?: string
 }
 
 function Dashboard({ onNavigate, onAdd, onNotify }: { onNavigate: (page: PageKey) => void; onAdd: () => void; onNotify: (message: string) => void }) {
+  const today = new Date();
+  const longDate = new Intl.DateTimeFormat('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' }).format(today);
+  const shortDate = new Intl.DateTimeFormat('zh-TW', { month: '2-digit', day: '2-digit', weekday: 'short' }).format(today);
   return (
     <div className="page-content dashboard-page">
-      <PageHeading eyebrow="星期日 · 11 月 1 日" title="營運概況" description="掌握今天的洗車服務與待辦事項。" action={<button className="button button-primary desktop-add" onClick={onAdd}><Plus size={17} />新增洗車紀錄</button>} />
+      <PageHeading eyebrow={longDate} title="營運概況" description="掌握今天的洗車服務與待辦事項。" action={<button className="button button-primary desktop-add" onClick={onAdd}><Plus size={17} />新增洗車紀錄</button>} />
       <section className="welcome-strip">
-        <div className="welcome-icon"><Sparkles size={20} /></div><div className="welcome-copy"><strong>今天的營運狀況</strong><span>目前已完成 4 筆服務，繼續保持。</span></div><div className="welcome-date"><CalendarDays size={15} />11/01（日）</div>
+        <div className="welcome-icon"><Sparkles size={20} /></div><div className="welcome-copy"><strong>今天的營運狀況</strong><span>目前已完成 4 筆服務，繼續保持。</span></div><div className="welcome-date"><CalendarDays size={15} />{shortDate}</div>
       </section>
       <section className="metric-grid" aria-label="營運指標">
         <MetricCard icon={Droplets} label="今日洗車筆數" value="12" suffix="筆" change="+ 3" note="較昨日同期" tone="green" />
