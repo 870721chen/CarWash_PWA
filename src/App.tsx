@@ -1,10 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
-  Activity, ArrowDownLeft, ArrowRight, Bell, CalendarDays, CarFront,
-  Check, ChevronDown, ChevronRight, CircleHelp, Clock3, Droplets,
-  Ellipsis, FileText, Gauge, LayoutDashboard, Menu, Plus, Search,
-  Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Users, Wrench,
-  X, Wallet, type LucideIcon
+  Activity, ArrowRight, Bell, CalendarDays, CarFront, Check, ChevronDown,
+  ChevronRight, CircleHelp, Droplets, Ellipsis, FileText, LayoutDashboard,
+  Menu, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles,
+  Users, Wrench, X, Wallet, type LucideIcon
 } from 'lucide-react';
 
 type PageKey = 'dashboard' | 'records' | 'customers' | 'maintenance' | 'settings';
@@ -128,7 +127,7 @@ function App() {
   );
 }
 
-function PageHeading({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description?: string; action?: React.ReactNode }) {
+function PageHeading({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description?: string; action?: ReactNode }) {
   return <div className="page-heading"><div>{eyebrow && <div className="eyebrow">{eyebrow}</div>}<h1>{title}</h1>{description && <p>{description}</p>}</div>{action && <div className="heading-action">{action}</div>}</div>;
 }
 
