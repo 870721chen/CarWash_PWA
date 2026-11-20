@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-const base = process.env.GITHUB_PAGES === 'true' ? '/CarWash_PWA/' : '/';
+const base = '/CarWash_PWA/';
 
 export default defineConfig({
   base,
