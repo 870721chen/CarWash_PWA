@@ -150,7 +150,7 @@ function Dashboard({ onNavigate, onAdd }: { onNavigate: (page: PageKey) => void;
               <thead><tr><th>日期</th><th>客戶</th><th>車牌</th><th>品牌/車型</th><th>施作項目</th><th>附加項目</th><th>金額</th><th>備註</th></tr></thead>
               <tbody>{initialRecords.map((r) => (
                 <tr key={r.id} onClick={() => onNavigate('records')} className="exe-clickable-record">
-                  <td>2026/11/20</td><td>{r.name}</td><td><strong>{r.plate}</strong></td><td>{r.vehicle}</td><td>{r.service}</td><td>無</td><td className="amount-cell">{money(r.amount)}</td><td>無</td>
+                  <td>示意日期</td><td>{r.name}</td><td><strong>{r.plate}</strong></td><td>{r.vehicle}</td><td>{r.service}</td><td>無</td><td className="amount-cell">{money(r.amount)}</td><td>無</td>
                 </tr>
               ))}</tbody>
             </table>
