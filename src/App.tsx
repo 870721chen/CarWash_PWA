@@ -169,7 +169,7 @@ function Dashboard({ onNavigate, onAdd }: { onNavigate: (page: PageKey) => void;
             <p>常用功能</p>
             <button className="button button-primary" onClick={onAdd}><Plus size={17}/>新增洗車紀錄</button>
             <button className="button button-secondary" onClick={() => onNavigate('customers')}>客戶與車輛</button>
-            <button className="button button-secondary" onClick={() => onNavigate('settings')}>服務項目</button>
+            <button className="button button-secondary" onClick={() => onNavigate('settings')}>服務與項目</button>
             <span>快速進入常用管理頁面</span>
           </div>
         </div>
@@ -239,13 +239,61 @@ function Maintenance({ onNotify }: { onNotify: (message: string) => void }) {
   </div>;
 }
 
+type CatalogType = 'services' | 'addons' | 'maintenance';
+type CatalogItem = { id: number; name: string; active: boolean };
+const catalogDefaults: Record<CatalogType, CatalogItem[]> = {
+  services: [{id:1,name:'標準洗車',active:true},{id:2,name:'精緻洗車',active:true},{id:3,name:'深層清潔',active:true}],
+  addons: [{id:1,name:'內裝清潔',active:true},{id:2,name:'玻璃清潔',active:true},{id:3,name:'輪圈保養',active:true}],
+  maintenance: [{id:1,name:'皮革保養',active:true},{id:2,name:'玻璃鍍膜檢查',active:true},{id:3,name:'內裝深層清潔',active:true}],
+};
+const catalogLabels: Record<CatalogType,string> = {services:'施作項目',addons:'附加項目',maintenance:'維護項目'};
+
 function Settings({ onNotify }: { onNotify: (message: string) => void }) {
-  return <div className="page-content"><PageHeading eyebrow="系統管理" title="設定" description="管理洗車服務項目與系統偏好。" />
-    <div className="settings-layout"><div className="settings-menu panel"><button className="settings-menu-item selected"><SlidersHorizontal size={18} />一般設定<ChevronRight size={16} /></button><button className="settings-menu-item" onClick={() => onNotify('服務項目設定將於下一步實作')}><Droplets size={18} />施作項目<ChevronRight size={16} /></button><button className="settings-menu-item" onClick={() => onNotify('附加項目設定將於下一步實作')}><Sparkles size={18} />附加項目<ChevronRight size={16} /></button><button className="settings-menu-item" onClick={() => onNotify('雲端連線將於下一階段設定')}><Activity size={18} />雲端連線<ChevronRight size={16} /></button></div>
-      <div className="settings-content panel"><div className="settings-section"><h2>系統資訊</h2><p>檢視目前應用程式狀態。</p><div className="setting-row"><div><strong>應用程式名稱</strong><span>顯示於首頁與安裝圖示</span></div><strong>CarWash</strong></div><div className="setting-row"><div><strong>版本</strong><span>目前開發版本</span></div><span className="status-pill neutral">0.1.0 · UI Preview</span></div></div>
-        <div className="settings-section"><h2>資料來源</h2><p>下一階段會連接既有的 Supabase 專案。</p><div className="connection-card"><div className="connection-icon"><Activity size={20} /></div><div><strong>Supabase 雲端資料庫</strong><span>目前尚未設定環境變數或發送資料請求。</span></div><span className="status-pill pending">未連線</span></div><div className="settings-hint"><CircleHelp size={16} /><span>連線設定會放在環境變數中，不會將 Service Role Key 放入前端。</span></div></div>
-        <div className="settings-section"><h2>操作偏好</h2><div className="setting-row"><div><strong>手機版底部導覽列</strong><span>在手機上快速切換主要功能</span></div><span className="toggle on" aria-label="已啟用"><i /></span></div><div className="setting-row"><div><strong>介面自動更新</strong><span>部署新版本後提示更新</span></div><span className="toggle on" aria-label="已啟用"><i /></span></div></div>
-      </div></div>
+  const [tab,setTab] = useState<'general' | CatalogType | 'cloud'>('services');
+  const [catalog,setCatalog] = useState<Record<CatalogType,CatalogItem[]>>(catalogDefaults);
+  const [draft,setDraft] = useState('');
+  const [editing,setEditing] = useState<number|null>(null);
+  const [editName,setEditName] = useState('');
+  const choose = (next: typeof tab) => {setTab(next);setDraft('');setEditing(null);};
+  const changeItems = (fn:(items:CatalogItem[])=>CatalogItem[]) => {
+    if(tab==='general'||tab==='cloud') return;
+    setCatalog(prev=>({...prev,[tab]:fn(prev[tab])}));
+  };
+  const add = () => {
+    if(tab==='general'||tab==='cloud')return;
+    const name=draft.trim();
+    if(!name)return;
+    if(catalog[tab].some(x=>x.name.toLocaleLowerCase()===name.toLocaleLowerCase())){onNotify('此項目名稱已存在');return;}
+    changeItems(items=>[...items,{id:Date.now(),name,active:true}]);
+    setDraft('');onNotify('已新增至本次預覽（不會寫入資料庫）');
+  };
+  const saveEdit = (id:number) => {
+    if(tab==='general'||tab==='cloud')return;
+    const name=editName.trim();
+    if(!name)return;
+    if(catalog[tab].some(x=>x.id!==id&&x.name.toLocaleLowerCase()===name.toLocaleLowerCase())){onNotify('此項目名稱已存在');return;}
+    changeItems(items=>items.map(x=>x.id===id?{...x,name}:x));
+    setEditing(null);onNotify('已更新預覽項目');
+  };
+  return <div className="page-content"><PageHeading eyebrow="管理中心" title="服務與項目" description="管理施作項目、附加項目及維護項目。資料僅在本次預覽中生效。" />
+    <div className="settings-layout">
+      <div className="settings-menu panel">
+        {([['services','施作項目',Droplets],['addons','附加項目',Sparkles],['maintenance','維護項目',Wrench],['general','一般設定',SlidersHorizontal],['cloud','雲端連線',Activity]] as const).map(([key,label,Icon])=><button key={key} className={`settings-menu-item ${tab===key?'selected':''}`} onClick={()=>choose(key)}><Icon size={18}/>{label}<ChevronRight size={16}/></button>)}
+      </div>
+      <div className="settings-content panel">
+        {tab==='general' && <><div className="settings-section"><h2>系統資訊</h2><p>CarWash PWA 介面預覽版本。</p><div className="setting-row"><div><strong>應用程式</strong><span>CarWash 洗車管理</span></div><span className="status-pill neutral">UI Preview</span></div></div><div className="settings-section"><h2>操作偏好</h2><p>手機版提供底部導覽列，方便快速切換功能。</p></div></>}
+        {tab==='cloud' && <div className="settings-section"><h2>雲端連線</h2><p>目前尚未連接 Supabase。</p><div className="connection-card"><div className="connection-icon"><Activity size={20}/></div><div><strong>Supabase 雲端資料庫</strong><span>本階段僅設計前端，不會傳送或儲存雲端資料。</span></div><span className="status-pill pending">未連線</span></div><div className="settings-hint"><CircleHelp size={16}/><span>未來連接時不會在前端使用 Service Role Key。</span></div></div>}
+        {(tab==='services'||tab==='addons'||tab==='maintenance') && <div className="catalog-content">
+          <div className="catalog-header"><div><h2>{catalogLabels[tab]}</h2><p>可新增、重新命名、啟用或停用項目。</p></div><span className="status-pill neutral">{catalog[tab].length} 項</span></div>
+          <form className="catalog-add" onSubmit={e=>{e.preventDefault();add();}}><input value={draft} onChange={e=>setDraft(e.target.value)} placeholder={`輸入新的${catalogLabels[tab]}名稱`} aria-label={`新增${catalogLabels[tab]}`}/><button type="submit" className="button button-primary" disabled={!draft.trim()}><Plus size={17}/>新增項目</button></form>
+          <div className="catalog-list">{catalog[tab].map(item=><div className="catalog-row" key={item.id}>
+            {editing===item.id ? <form className="catalog-edit" onSubmit={e=>{e.preventDefault();saveEdit(item.id);}}><input value={editName} autoFocus onChange={e=>setEditName(e.target.value)} aria-label="編輯項目名稱"/><button type="submit" className="button button-primary" disabled={!editName.trim()}>儲存</button><button type="button" className="button button-secondary" onClick={()=>setEditing(null)}>取消</button></form> :
+            <><div className="catalog-row-name"><strong>{item.name}</strong><span className={`status-pill ${item.active?'completed':'neutral'}`}>{item.active?'使用中':'已停用'}</span></div><div className="catalog-row-actions"><button className="button button-secondary" onClick={()=>{setEditing(item.id);setEditName(item.name);}}>編輯</button><button className="button button-secondary" onClick={()=>changeItems(items=>items.map(x=>x.id===item.id?{...x,active:!x.active}:x))}>{item.active?'停用':'啟用'}</button><button className="button button-secondary" onClick={()=>{if(window.confirm(`確定從預覽清單移除「${item.name}」？`))changeItems(items=>items.filter(x=>x.id!==item.id));}}>刪除</button></div></>}
+          </div>)}</div>
+          <div className="catalog-note">展示資料僅保留在目前開啟的頁面中，重新整理後會恢復預設項目。尚未連接資料庫。</div>
+        </div>}
+      </div>
+    </div>
   </div>;
 }
 
