@@ -34,3 +34,13 @@ html,body,#root{height:100%;overflow:hidden}
   .mobile-bottom-nav{position:fixed}
   .sidebar{height:100dvh}
 }
+
+
+/* Prevent iOS Safari focus zoom without disabling user pinch-to-zoom. */
+@media (pointer:coarse), (max-width:760px){
+  input,textarea,select,
+  .top-search input,.search-field input,.directory-search input,
+  .form-label input,.form-label textarea,.form-label select{
+    font-size:16px;
+  }
+}
