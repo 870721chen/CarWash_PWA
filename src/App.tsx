@@ -1,19 +1,19 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import {
-  Activity, ArrowRight, Bell, CalendarDays, CarFront, Check, ChevronDown,
+  Activity, Bell, CalendarDays, CarFront, Check, ChevronDown,
   ChevronRight, CircleHelp, Droplets, Ellipsis, FileText, LayoutDashboard,
-  Menu, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles,
+  Menu, Plus, Search, Settings2, SlidersHorizontal, Sparkles,
   Users, Wrench, X, Wallet, type LucideIcon
 } from 'lucide-react';
 
 type PageKey = 'dashboard' | 'records' | 'customers' | 'maintenance' | 'settings';
 
 const navItems: { key: PageKey; label: string; icon: LucideIcon }[] = [
-  { key: 'dashboard', label: '儀表板', icon: LayoutDashboard },
+  { key: 'dashboard', label: '總覽儀表板', icon: LayoutDashboard },
   { key: 'records', label: '洗車紀錄', icon: FileText },
   { key: 'customers', label: '客戶與車輛', icon: Users },
-  { key: 'maintenance', label: '定期維護', icon: Wrench },
-  { key: 'settings', label: '設定', icon: Settings2 },
+  { key: 'maintenance', label: '維護通知', icon: Wrench },
+  { key: 'settings', label: '系統設定', icon: Settings2 },
 ];
 
 const initialRecords = [
@@ -68,11 +68,11 @@ function App() {
     <div className="app-shell">
       <aside className={`sidebar ${mobileMenu ? 'sidebar-open' : ''}`}>
         <div className="brand">
-          <div className="brand-mark"><Droplets size={22} strokeWidth={2.5} /></div>
-          <div><div className="brand-name">CarWash</div><div className="brand-subtitle">洗車管理系統</div></div>
+          <div className="brand-mark"><Droplets size={22} strokeWidth={2.3} /></div>
+          <div><div className="brand-name">CarWash</div><div className="brand-subtitle">MANAGEMENT SYSTEM</div></div>
           <button className="icon-button sidebar-close" aria-label="關閉選單" onClick={() => setMobileMenu(false)}><X size={19} /></button>
         </div>
-        <div className="workspace-label">工作空間</div>
+        <div className="workspace-label">工作區</div>
         <nav className="side-nav" aria-label="主要導覽">
           {navItems.map(({ key, label, icon: Icon }) => (
             <button key={key} className={`nav-item ${page === key ? 'active' : ''}`} onClick={() => { setPage(key); setMobileMenu(false); }}>
@@ -94,7 +94,7 @@ function App() {
         <header className="topbar">
           <div className="topbar-left">
             <button className="icon-button mobile-menu-button" aria-label="開啟選單" onClick={() => setMobileMenu(true)}><Menu size={21} /></button>
-            <div className="breadcrumb"><span>CarWash</span><ChevronRight size={14} /><strong>{pageTitle}</strong></div>
+            <div className="breadcrumb"><span>CARWASH / MANAGEMENT</span><ChevronRight size={14} /><strong>{pageTitle}</strong></div>
           </div>
           <div className="topbar-actions">
             {showSearch ? (
@@ -131,67 +131,56 @@ function PageHeading({ eyebrow, title, description, action }: { eyebrow?: string
   return <div className="page-heading"><div>{eyebrow && <div className="eyebrow">{eyebrow}</div>}<h1>{title}</h1>{description && <p>{description}</p>}</div>{action && <div className="heading-action">{action}</div>}</div>;
 }
 
-function Dashboard({ onNavigate, onAdd, onNotify }: { onNavigate: (page: PageKey) => void; onAdd: () => void; onNotify: (message: string) => void }) {
-  const today = new Date();
-  const longDate = new Intl.DateTimeFormat('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' }).format(today);
-  const shortDate = new Intl.DateTimeFormat('zh-TW', { month: '2-digit', day: '2-digit', weekday: 'short' }).format(today);
+function Dashboard({ onNavigate, onAdd }: { onNavigate: (page: PageKey) => void; onAdd: () => void; onNotify: (message: string) => void }) {
   return (
-    <div className="page-content dashboard-page">
-      <PageHeading eyebrow={longDate} title="營運概況" description="掌握今天的洗車服務與待辦事項。" action={<button className="button button-primary desktop-add" onClick={onAdd}><Plus size={17} />新增洗車紀錄</button>} />
-      <section className="welcome-strip">
-        <div className="welcome-icon"><Sparkles size={20} /></div><div className="welcome-copy"><strong>今天的營運狀況</strong><span>目前已完成 4 筆服務，繼續保持。</span></div><div className="welcome-date"><CalendarDays size={15} />{shortDate}</div>
-      </section>
+    <div className="page-content dashboard-page exe-dashboard">
+      <PageHeading title="總覽儀表板" description="掌握每日營運狀況與洗車服務紀錄" />
       <section className="metric-grid" aria-label="營運指標">
-        <MetricCard icon={Droplets} label="今日洗車筆數" value="12" suffix="筆" change="+ 3" note="較昨日同期" tone="green" />
-        <MetricCard icon={Wallet} label="今日營收" value="NT$ 6,850" change="+ 12.5%" note="較昨日同期" tone="blue" />
-        <MetricCard icon={Users} label="服務客戶" value="10" suffix="位" change="+ 2" note="今日不重複客戶" tone="purple" />
-        <MetricCard icon={Wrench} label="待處理維護" value="3" suffix="項" change="需留意" note="包含 1 項已到期" tone="orange" />
+        <MetricCard icon={Droplets} label="今日洗車數" value="4" note="今日服務紀錄" tone="gold" />
+        <MetricCard icon={Users} label="累積客戶" value="5" note="客戶資料筆數" tone="gold" />
+        <MetricCard icon={Wallet} label="今日營收" value="$1,900" note="今日服務金額合計" tone="green" />
+        <MetricCard icon={CalendarDays} label="本月洗車數" value="4" note="本月服務紀錄" tone="orange" />
       </section>
 
-      <section className="content-grid">
-        <div className="panel recent-panel">
-          <div className="panel-heading"><div><h2>近期洗車紀錄</h2><p>今天最新的服務紀錄</p></div><button className="text-button" onClick={() => onNavigate('records')}>查看全部 <ArrowRight size={15} /></button></div>
-          <div className="record-list">
-            {initialRecords.slice(0, 4).map((record) => <div className="record-row" key={record.id}>
-              <div className="record-car-icon"><CarFront size={20} /></div>
-              <div className="record-main"><strong>{record.plate}</strong><span>{record.name} · {record.service}</span></div>
-              <div className="record-right"><strong>{money(record.amount)}</strong><span>{record.time}</span></div>
-            </div>)}
+      <section className="exe-dashboard-panels">
+        <div className="panel exe-recent-panel">
+          <div className="panel-heading exe-panel-heading"><h2>最近洗車紀錄</h2><button className="button button-secondary" onClick={() => onNavigate('records')}>查看全部</button></div>
+          <div className="exe-recent-scroll">
+            <table className="exe-recent-table">
+              <thead><tr><th>日期</th><th>客戶</th><th>車牌</th><th>品牌/車型</th><th>施作項目</th><th>附加項目</th><th>金額</th><th>備註</th></tr></thead>
+              <tbody>{initialRecords.map((r) => (
+                <tr key={r.id} onClick={() => onNavigate('records')} className="exe-clickable-record">
+                  <td>2026/11/20</td><td>{r.name}</td><td><strong>{r.plate}</strong></td><td>{r.vehicle}</td><td>{r.service}</td><td>無</td><td className="amount-cell">{money(r.amount)}</td><td>無</td>
+                </tr>
+              ))}</tbody>
+            </table>
           </div>
-          <button className="panel-footer-link" onClick={() => onNavigate('records')}>前往洗車紀錄 <ChevronRight size={16} /></button>
+          <div className="exe-mobile-recent">{initialRecords.map((r) => (
+            <button className="exe-mobile-recent-row" key={r.id} onClick={() => onNavigate('records')}>
+              <span><strong>{r.plate}</strong><small>{r.name} · {r.vehicle}</small></span>
+              <span className="exe-recent-amount"><strong>{money(r.amount)}</strong><small>{r.service}</small></span>
+            </button>
+          ))}</div>
+          <div className="exe-demo-footer">展示資料 · 尚未連接後端</div>
         </div>
-        <div className="panel maintenance-panel">
-          <div className="panel-heading"><div><h2>定期維護提醒</h2><p>需要關注的車輛項目</p></div><button className="icon-button" aria-label="查看維護" onClick={() => onNavigate('maintenance')}><ArrowRight size={18} /></button></div>
-          <div className="maintenance-list">
-            {maintenanceRows.map((item) => <button className="maintenance-row" key={item.plate} onClick={() => onNavigate('maintenance')}>
-              <div className={`maintenance-indicator ${item.tone}`}><Wrench size={17} /></div>
-              <div className="maintenance-copy"><strong>{item.item}</strong><span>{item.plate} · {item.owner}</span></div>
-              <div className="due-copy"><strong className={item.tone === 'urgent' ? 'danger-text' : ''}>{item.due}</strong><span>{item.days}</span></div>
-            </button>)}
+        <div className="panel exe-actions-panel">
+          <div className="panel-heading exe-panel-heading"><h2>快速操作</h2></div>
+          <div className="exe-actions-inner">
+            <p>常用功能</p>
+            <button className="button button-primary" onClick={onAdd}><Plus size={17}/>新增洗車紀錄</button>
+            <button className="button button-secondary" onClick={() => onNavigate('customers')}>客戶與車輛</button>
+            <button className="button button-secondary" onClick={() => onNavigate('settings')}>服務項目</button>
+            <span>快速進入常用管理頁面</span>
           </div>
-          <button className="panel-footer-link" onClick={() => onNavigate('maintenance')}>管理定期維護 <ChevronRight size={16} /></button>
         </div>
       </section>
-
-      <section className="bottom-grid">
-        <div className="panel quick-panel"><div className="panel-heading"><div><h2>快速操作</h2><p>常用功能捷徑</p></div></div><div className="quick-actions">
-          <button onClick={onAdd}><span className="quick-icon green"><Plus size={19} /></span><span><strong>新增洗車紀錄</strong><small>記錄新的服務</small></span><ChevronRight size={16} /></button>
-          <button onClick={() => onNavigate('customers')}><span className="quick-icon blue"><Users size={19} /></span><span><strong>查詢客戶車輛</strong><small>快速搜尋資料</small></span><ChevronRight size={16} /></button>
-          <button onClick={() => onNavigate('maintenance')}><span className="quick-icon orange"><Wrench size={19} /></span><span><strong>維護管理</strong><small>查看到期項目</small></span><ChevronRight size={16} /></button>
-        </div></div>
-        <div className="panel status-panel"><div className="panel-heading"><div><h2>系統狀態</h2><p>目前介面與資料連線狀況</p></div><Activity size={18} className="muted-icon" /></div>
-          <div className="system-status-row"><span className="system-status-icon"><ShieldCheck size={18} /></span><div><strong>介面可正常操作</strong><span>頁面導覽與互動已啟用</span></div><span className="status-pill neutral">預覽</span></div>
-          <div className="system-status-row"><span className="system-status-icon cloud"><Activity size={18} /></span><div><strong>雲端資料連線</strong><span>下一階段整合 Supabase</span></div><span className="status-pill pending">待設定</span></div>
-          <button className="panel-footer-link" onClick={() => onNotify('Supabase 連線將於下一階段設定')}>查看整合規劃 <ChevronRight size={16} /></button>
-        </div>
-      </section>
-      <div className="page-footnote">CarWash PWA <span>·</span> 介面建置階段，畫面資料為示意內容</div>
+      <div className="page-footnote">CarWash PWA <span>·</span> EXE 風格介面預覽，資料皆為示意內容</div>
     </div>
   );
 }
 
-function MetricCard({ icon: Icon, label, value, suffix, change, note, tone }: { icon: LucideIcon; label: string; value: string; suffix?: string; change: string; note: string; tone: string }) {
-  return <div className="metric-card"><div className="metric-top"><span className={`metric-icon ${tone}`}><Icon size={19} /></span><span className={`metric-change ${tone === 'orange' ? 'attention' : ''}`}>{change}</span></div><div className="metric-label">{label}</div><div className="metric-value">{value}{suffix && <small>{suffix}</small>}</div><div className="metric-note">{note}</div></div>;
+function MetricCard({ label, value, note, tone }: { icon: LucideIcon; label: string; value: string; note: string; tone: string }) {
+  return <div className={`metric-card exe-metric ${tone}`}><span className="exe-metric-accent" /><div className="metric-label">{label}</div><div className="metric-value">{value}</div><div className="metric-note">{note}</div></div>;
 }
 
 function Records({ records, search, setSearch, onAdd }: { records: typeof initialRecords; search: string; setSearch: (value: string) => void; onAdd: () => void }) {
@@ -206,11 +195,32 @@ function Records({ records, search, setSearch, onAdd }: { records: typeof initia
 }
 
 function Customers({ customers, search, setSearch, onNotify }: { customers: typeof customerRows; search: string; setSearch: (value: string) => void; onNotify: (message: string) => void }) {
-  return <div className="page-content"><PageHeading eyebrow="客戶資料" title="客戶與車輛" description="以客戶為中心管理聯絡資料與名下車輛。" action={<button className="button button-primary" onClick={() => onNotify('新增客戶表單將於下一步實作')}><Plus size={17} />新增客戶</button>} />
-    <div className="customer-summary"><div><span className="summary-label">客戶總數</span><strong>248 <small>位</small></strong></div><div><span className="summary-label">已登記車輛</span><strong>316 <small>台</small></strong></div><div><span className="summary-label">本月新增</span><strong>18 <small>位</small></strong></div></div>
-    <div className="list-toolbar"><div className="search-field"><Search size={17} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜尋姓名、電話、車牌或車型" /></div><button className="button button-secondary filter-button" onClick={() => setSearch('')}><SlidersHorizontal size={16} />清除篩選</button><div className="result-count">共 {customers.length} 位</div></div>
-    <div className="customer-card-grid">{customers.map((c, i) => <article className="panel customer-card" key={c.plate}><div className="customer-card-head"><div className={`customer-avatar avatar-tone-${i % 4}`}>{c.name.slice(0, 1)}</div><div className="customer-name"><strong>{c.name}</strong><span>{c.phone}</span></div><button className="icon-button" aria-label="客戶更多選項" onClick={() => onNotify('客戶詳細資料將於資料串接後開放')}><Ellipsis size={18} /></button></div><div className="customer-vehicle"><div className="vehicle-mini-icon"><CarFront size={19} /></div><div><strong>{c.plate}</strong><span>{c.car}</span></div><ChevronRight size={17} /></div><div className="customer-card-foot"><span><Activity size={14} />洗車 {c.visits} 次</span><span>最近 {c.last}</span></div></article>)}</div>
-    {customers.length === 0 && <div className="empty-state"><Search size={24} /><strong>沒有找到客戶</strong><span>請確認搜尋條件。</span></div>}
+  const [selectedPlate, setSelectedPlate] = useState<string | null>(customerRows[0].plate);
+  const selected = customers.find((c) => c.plate === selectedPlate) ?? customers[0];
+  return <div className="page-content exe-customers-page">
+    <PageHeading title="客戶與車輛" description="管理客戶資料、車輛資訊與洗車紀錄" action={<button className="button button-primary" onClick={() => onNotify('目前為介面預覽，尚未開放新增客戶')}><Plus size={17}/>新增客戶</button>}/>
+    <div className="exe-customer-layout">
+      <section className="panel exe-customer-directory">
+        <div className="panel-heading exe-panel-heading"><h2>客戶資料</h2><span className="exe-panel-count">{customers.length} 位</span></div>
+        <div className="exe-customer-search"><Search size={17}/><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜尋客戶、電話或車牌"/></div>
+        <div className="exe-customer-list">
+          {customers.map((c) => <button key={c.plate} className={`exe-customer-item ${selected?.plate === c.plate ? 'selected' : ''}`} onClick={() => setSelectedPlate(c.plate)}>
+            <span className="exe-customer-item-copy"><strong>{c.name}</strong><small>{c.phone} · {c.plate}</small></span><ChevronRight size={17}/>
+          </button>)}
+          {customers.length===0 && <div className="empty-state"><Search size={21}/><strong>找不到客戶</strong></div>}
+        </div>
+      </section>
+      <section className="panel exe-customer-details">
+        <div className="panel-heading exe-panel-heading"><h2>客戶詳細資料</h2><button className="button button-secondary" onClick={()=>onNotify('預覽模式：客戶資料未連接資料庫')}>編輯資料</button></div>
+        {selected ? <div className="exe-customer-detail-body">
+          <div className="exe-detail-section-title">基本資料</div>
+          <div className="exe-detail-pairs"><div><span>客戶名稱</span><strong>{selected.name}</strong></div><div><span>聯絡電話</span><strong>{selected.phone}</strong></div><div><span>客戶備註</span><strong>無</strong></div><div><span>洗車次數</span><strong>{selected.visits} 次</strong></div></div>
+          <div className="exe-detail-section-heading"><span>名下車輛</span><button className="button button-secondary" onClick={()=>onNotify('預覽模式：尚未開放新增車輛')}><Plus size={16}/>新增車輛</button></div>
+          <div className="exe-vehicle-row"><div className="exe-vehicle-icon"><CarFront size={21}/></div><div><strong>{selected.plate}</strong><small>{selected.car}</small></div><span className="status-pill neutral">車輛 1</span></div>
+          <div className="exe-customer-last">最近洗車：{selected.last}</div>
+        </div> : <div className="empty-state"><Users size={23}/><strong>請選擇客戶</strong></div>}
+      </section>
+    </div>
   </div>;
 }
 
